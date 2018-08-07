@@ -98,9 +98,7 @@ private[xml] object StaxXmlParserUtils {
           xmlString += e.toString
           shouldStop = checkEndElement(parser)
         case e: XMLEvent =>
-          if (parser.peek.isStartElement) {
-            xmlString += convertChildren()
-          }
+          if (parser.peek.isStartElement) xmlString += convertChildren()
           shouldStop = shouldStop && parser.hasNext
       }
     }
