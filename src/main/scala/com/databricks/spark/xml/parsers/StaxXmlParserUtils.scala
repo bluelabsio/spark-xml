@@ -23,6 +23,7 @@ private[xml] object StaxXmlParserUtils {
   def checkEndElement(parser: XMLEventReader): Boolean = {
     parser.peek match {
       case _: EndElement => true
+      case _: EndDocument => true
       case _: StartElement => false
       case _ =>
         // When other events are found here rather than `EndElement` or `StartElement`
@@ -75,7 +76,7 @@ private[xml] object StaxXmlParserUtils {
           childrenXmlString += c.toString
           parser.next
           parser.peek match {
-            case se: StartElement =>
+            case _: StartElement =>
               childrenXmlString += currentStructureAsString(parser)
             case e: XMLEvent =>
               childrenXmlString += e.toString
@@ -91,11 +92,9 @@ private[xml] object StaxXmlParserUtils {
     while (!shouldStop) {
       parser.nextEvent match {
         case e: StartElement =>
-          val elementName = e.getName.toString
           xmlString += e.toString
           xmlString += convertChildren()
         case e: EndElement =>
-          val elementName = e.getName.toString
           xmlString += e.toString
           shouldStop = checkEndElement(parser)
         case e: XMLEvent =>
@@ -121,15 +120,13 @@ private[xml] object StaxXmlParserUtils {
             // There can be a `Characters` event between `StartElement`s.
             // So, we need to check further to decide if this is a data or just
             // a whitespace between them.
-
             parser.next
           }
           if (parser.peek.isStartElement) {
             skipChildren(parser)
           }
         case _: EndElement =>
-          //shouldStop = checkEndElement(parser)
-          shouldStop = checkEndElement(parser) && !parser.hasNext
+          shouldStop = checkEndElement(parser)
         case _: XMLEvent =>
           shouldStop = shouldStop && parser.hasNext
       }
