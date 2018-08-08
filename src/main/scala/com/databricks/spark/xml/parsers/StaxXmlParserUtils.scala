@@ -98,6 +98,7 @@ private[xml] object StaxXmlParserUtils {
           xmlString += e.toString
           shouldStop = checkEndElement(parser)
         case e: XMLEvent =>
+          if (parser.peek.isStartElement) xmlString += convertChildren()
           shouldStop = shouldStop && parser.hasNext
       }
     }
@@ -125,6 +126,7 @@ private[xml] object StaxXmlParserUtils {
         case _: EndElement =>
           shouldStop = checkEndElement(parser)
         case _: XMLEvent =>
+          if (parser.peek.isStartElement) skipChildren(parser)
           shouldStop = shouldStop && parser.hasNext
       }
     }
